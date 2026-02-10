@@ -1,0 +1,6 @@
+{
+  "candidate_k": 5,
+  "final_k": 2,
+  "n_estimators": 100,
+  "max_depth": 10
+}

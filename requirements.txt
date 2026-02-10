@@ -1,0 +1,14 @@
+llama-index
+llama-index-retrievers-bm25
+sentence-transformers
+scikit-learn
+pandas
+numpy
+tqdm
+matplotlib
+seaborn
+mlxtend
+loguru
+regex
+rank_bm25
+scipy

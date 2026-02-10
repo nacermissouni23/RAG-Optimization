@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Optimization & Data Mining Project: Consolidated Report</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --surface-dark: #1e293b;
+            --primary: #3b82f6;
+            --secondary: #64748b;
+            --accent-success: #10b981;
+            --accent-danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        a { text-decoration: none; color: inherit; transition: color 0.2s; }
+        a:hover { color: var(--primary); }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--surface-dark);
+            padding: 1rem 2rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-logo { font-weight: 700; font-size: 1.2rem; color: var(--primary); }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-links a { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
+        .nav-links a:hover { color: var(--text-main); }
+
+        /* Layout */
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .section { margin-bottom: 6rem; padding-top: 4rem; }
+        
+        h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.05em; margin-bottom: 1.5rem; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 2.2rem; margin-bottom: 2rem; border-left: 4px solid var(--primary); padding-left: 1rem; color: var(--text-main); }
+        h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-main); }
+        p { margin-bottom: 1.5rem; color: var(--text-muted); font-size: 1.1rem; }
+
+        /* Cards Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .card {
+            background: var(--surface-dark);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); }
+        .card h3 { font-size: 1.4rem; color: var(--text-main); margin-bottom: 0.5rem; }
+        .card .role { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); margin-bottom: 1rem; display: block; }
+        .card-link { margin-top: auto; display: inline-flex; align-items: center; color: var(--primary); font-weight: 600; }
+        .card-link::after { content: '→'; margin-left: 0.5rem; transition: transform 0.2s; }
+        .card:hover .card-link::after { transform: translateX(5px); }
+
+        /* Code & File Structure */
+        pre { background: #000; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin-bottom: 2rem; border: 1px solid #334155; }
+        code { font-family: 'JetBrains Mono', monospace; color: #e2e8f0; font-size: 0.9rem; }
+        .tree-line { color: var(--text-muted); }
+
+        /* Visualizations */
+        .chart-container { background: var(--surface-dark); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #334155; }
+        
+        /* Teammate Report "Page" Simulation */
+        .report-page {
+            background: var(--surface-dark);
+            border-radius: 16px;
+            padding: 3rem;
+            margin-top: 2rem;
+            border: 1px solid #334155;
+            position: relative;
+        }
+        .report-header { border-bottom: 1px solid #334155; padding-bottom: 2rem; margin-bottom: 2rem; }
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; margin-right: 0.5rem; }
+        .badge-success { background: rgba(16, 185, 129, 0.1); color: var(--accent-success); }
+        .badge-fail { background: rgba(239, 68, 68, 0.1); color: var(--accent-danger); }
+        .badge-neutral { background: rgba(59, 130, 246, 0.1); color: var(--primary); }
+
+        /* Back to top button */
+        .back-link { display: inline-block; margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem; cursor: pointer; }
+        .back-link:hover { color: var(--text-main); }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-logo">RAG_OPTIMIZATION</div>
+        <div class="nav-links">
+            <a href="#overview">Overview</a>
+            <a href="#structure">Structure</a>
+            <a href="#methods">Methods</a>
+            <a href="#conclusion">Conclusion</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <header id="overview" class="section" style="text-align: center; padding-top: 6rem;">
+            <div class="badge badge-neutral" style="margin-bottom: 1rem;">ACADEMIC YEAR 2025-2026</div>
+            <h1>Retrieval-Augmented Generation<br>Optimization Project</h1>
+            <p style="max-width: 700px; margin: 0 auto 2rem auto;">
+                A comprehensive data mining approach to optimize document retrieval. 
+                Combining re-ranking classifiers, quality-based clustering, and association rule mining to maximize LCS scores on the OHR-Bench dataset.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 2rem;">
+                <div><span style="display: block; font-size: 2rem; font-weight: 700; color: var(--primary);">8,498</span><span style="font-size: 0.8rem; text-transform: uppercase;">Queries</span></div>
+                <div><span style="display: block; font-size: 2rem; font-weight: 700; color: var(--accent-success);">+3.5%</span><span style="font-size: 0.8rem; text-transform: uppercase;">LCS Improvement</span></div>
+                <div><span style="display: block; font-size: 2rem; font-weight: 700; color: #fff;">4</span><span style="font-size: 0.8rem; text-transform: uppercase;">Unique Approaches</span></div>
+            </div>
+        </header>
+
+        <section class="section">
+            <h2>1. Project Objectives</h2>
+            <div class="grid">
+                <div class="card" style="border: none; background: transparent; padding: 0;">
+                    <h3 style="color: var(--primary);">Goal</h3>
+                    <p>Maximize the <strong>Longest Common Subsequence (LCS)</strong> score between retrieved document chunks and ground-truth evidence in a multi-domain RAG pipeline.</p>
+                </div>
+                <div class="card" style="border: none; background: transparent; padding: 0;">
+                    <h3 style="color: var(--primary);">Challenge</h3>
+                    <p>Standard BM25 retrieval struggles with "noisy" chunks, diverse content types (tables, formulas), and the semantic gap between queries and documents.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="structure" class="section">
+            <h2>2. Project & Repo Structure</h2>
+            <div class="grid">
+                <div>
+                    <h3>Pipeline Architecture</h3>
+                    <div class="mermaid">
+                    graph TD
+                        A[PDF Documents] -->|OCR Processing| B(Raw Text Chunks)
+                        B --> C{Optimization Layer}
+                        C -->|Method 1| D[Quality Filtering]
+                        C -->|Method 2| E[Re-Ranking Model]
+                        C -->|Method 3| F[Cluster Enhancement]
+                        E --> G[Final Retrieval]
+                        F --> G
+                        G --> H[LCS Evaluation]
+                    </div>
+                </div>
+                            </div>
+        </section>
+
+        <section id="methods" class="section">
+            <h2>3. Methods & Teammate Contributions</h2>
+            <p>Click on a method to view the detailed report page.</p>
+            <div class="grid">
+                <a href="#report-nacer" class="card">
+                    <span class="role">Re-Ranking Strategy</span>
+                    <h3>Supervised Re-Ranking</h3>
+                    <p>Moving beyond BM25 by training a Random Forest classifier on 26 semantic and structural features.</p>
+                    <div class="card-link">View Full Report</div>
+                </a>
+
+                <a href="#report-sara" class="card">
+                    <span class="role">Data Mining / Quality</span>
+                    <h3>Clustering & Enhancement</h3>
+                    <p>Using K-means to identify "POOR" quality tiers and applying targeted LaTeX/Table fixes.</p>
+                    <div class="card-link">View Full Report</div>
+                </a>
+
+                <a href="#report-asmaa" class="card">
+                    <span class="role">Filtering Experiment</span>
+                    <h3>Syntactic Filtering</h3>
+                    <p>Investigating if removing "noisy" chunks (high non-alpha ratio) improves precision.</p>
+                    <div class="card-link">View Full Report</div>
+                </a>
+
+                <a href="#report-oumnia" class="card">
+                    <span class="role">Pattern Mining</span>
+                    <h3>Association Rules</h3>
+                    <p>Using rule mining to diagnose correlations between chunk density, length, and retrieval success.</p>
+                    <div class="card-link">View Full Report</div>
+                </a>
+            </div>
+        </section>
+
+        <div id="report-nacer" class="report-page">
+            <div class="report-header">
+                <span class="badge badge-success">SUCCESSFUL: +3.5% LCS</span>
+                <h2>Teammate Report: Nacer</h2>
+                <h3>Topic: Document Re-Ranking Classifier</h3>
+            </div>
+            
+            <div class="grid">
+                <div>
+                    <h4>The Approach</h4>
+                    <p>Nacer implemented a <strong>two-stage retrieval pipeline</strong>. While BM25 is fast, it lacks semantic understanding. This approach uses BM25 to fetch candidates, then re-orders them using a Machine Learning model.</p>
+                    
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 10px; padding-left: 1rem; border-left: 2px solid var(--primary);">
+                            <strong>Stage 1:</strong> BM25 fetches top-5 candidates per query.
+                        </li>
+                        <li style="margin-bottom: 10px; padding-left: 1rem; border-left: 2px solid var(--primary);">
+                            <strong>Stage 2:</strong> A Random Forest Classifier (200 trees) scores candidates based on 26 features.
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Key Features Engineered</h4>
+                    <pre><code>1. Structural: chunk_len, unique_terms
+2. Similarity: jaccard_sim, semantic_bert_score
+3. Context: window_occurrences, term_proximity
+4. Statistical: sum_idf, avg_idf</code></pre>
+                </div>
+            </div>
+
+            <h4>Results</h4>
+            <div class="chart-container" style="position: relative; height: 300px;">
+                <canvas id="nacerChart"></canvas>
+            </div>
+            <p><strong>Verdict:</strong> The classifier successfully bridged the semantic gap, improving LCS from 80.34% to 83.13%.</p>
+            <a href="#methods" class="back-link">← Back to Methods Overview</a>
+        </div>
+
+        <div id="report-sara" class="report-page">
+            <div class="report-header">
+                <span class="badge badge-success">SUCCESSFUL: +1.96% GLOBAL</span>
+                <h2>Teammate Report: Sarah</h2>
+                <h3>Topic: Quality-Based Clustering & Enhancement</h3>
+            </div>
+            
+            <div class="grid">
+                <div>
+                    <h4>The Approach</h4>
+                    <p>Sarah treated the chunks as data points in a 15-dimensional space. Using <strong>K-Means Clustering</strong>, she identified 5 distinct "Quality Tiers".</p>
+                    <p>The analysis revealed that the <strong>POOR tier</strong> (Cluster 2) consisted mainly of broken tables and mathematical formulas corrupted by OCR.</p>
+                </div>
+                <div>
+                    <h4>Enhancement Strategy</h4>
+                    <p>Instead of filtering these out, the team applied <strong>Targeted Enhancement</strong>:</p>
+                    <ul>
+                        <li><strong>Tables:</strong> Restructured using row/column heuristics.</li>
+                        <li><strong>Formulas:</strong> Converted corrupted text back to LaTeX format.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h4>Results</h4>
+            <p>By fixing only the "POOR" chunks (n=1,468), the system saw a massive jump in that specific cluster's performance (+27.37%) and a solid global gain.</p>
+            <a href="#methods" class="back-link">← Back to Methods Overview</a>
+        </div>
+
+        <div id="report-asmaa" class="report-page">
+            <div class="report-header">
+                <span class="badge badge-fail">UNSUCCESSFUL STRATEGY</span>
+                <h2>Teammate Report: Asmaa</h2>
+                <h3>Topic: Syntactic Quality Filtering</h3>
+            </div>
+            
+            <p><strong>Hypothesis:</strong> Removing "noisy" chunks (those with high ratios of non-alphanumeric characters) will improve retrieval precision by reducing false positives.</p>
+            
+            <div class="grid">
+                <div>
+                    <h4>Methodology</h4>
+                    <p>Asmaa defined a "Noise Ratio" for every chunk:</p>
+                    <code>Noise = (NonAlphaChars) / (TotalLength)</code>
+                    <p>Chunks exceeding a threshold (0.4) were removed from the index entirely.</p>
+                </div>
+                <div>
+                    <h4>Findings</h4>
+                    <p>The experiment failed to improve results. The filtered dataset performed worse (LCS dropped from 0.85 to 0.72 in experiments).</p>
+                    <p><strong>Why?</strong> Technical documents <em>contain</em> high-noise content (code, JSON, formulas) that is actually relevant. "Noise" in technical docs is often "Signal".</p>
+                </div>
+            </div>
+            <a href="#methods" class="back-link">← Back to Methods Overview</a>
+        </div>
+
+        <div id="report-oumnia" class="report-page">
+            <div class="report-header">
+                <span class="badge badge-neutral">DIAGNOSTIC TOOL</span>
+                <h2>Teammate Report: Oumnia</h2>
+                <h3>Topic: Association Rules Analysis</h3>
+            </div>
+            
+            <p><strong>Goal:</strong> Use data mining (Apriori/FP-Growth) to find hidden rules that predict when a chunk will be useful.</p>
+            
+            <div style="background: rgba(59, 130, 246, 0.1); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--primary);">
+                <strong>Key Rule Discovered:</strong><br>
+                <code>{Short_Length, Low_Density, High_Word_Overlap} => {High_LCS_Score}</code>
+            </div>
+            <p style="margin-top: 1rem;">This method didn't directly improve the system but acted as a <strong>diagnostic tool</strong>, confirming that simple keyword matching (BM25) was the dominant factor in current success, and that re-ranking was necessary to capture longer, denser chunks.</p>
+
+            <a href="#methods" class="back-link">← Back to Methods Overview</a>
+        </div>
+
+        <section id="conclusion" class="section">
+            <h2>4. Final Conclusions & Insights</h2>
+            <div class="grid">
+                <div>
+                    <h3>What Worked</h3>
+                    <ul style="color: var(--text-muted);">
+                        <li style="margin-bottom: 0.5rem;">✅ <strong>Supervised Re-Ranking:</strong> The most effective lever. Learning the relationship between query structure and document structure (+3.5%).</li>
+                        <li style="margin-bottom: 0.5rem;">✅ <strong>Targeted Repair:</strong> Fixing broken data (Sarah's method) is better than deleting it.</li>
+                        <li style="margin-bottom: 0.5rem;">✅ <strong>Semantic Features:</strong> Features like "Answer Likeness" and "IDF Sum" were high predictors of quality.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>What Didn't Work</h3>
+                    <ul style="color: var(--text-muted);">
+                        <li style="margin-bottom: 0.5rem;">❌ <strong>Aggressive Filtering:</strong> Asmaa's report proved that in technical domains, "ugly" data (symbols, code) is often the answer. Deleting it hurts Recall.</li>
+                        <li style="margin-bottom: 0.5rem;">❌ <strong>Pure Syntactic Rules:</strong> Oumnia's analysis showed that simple rules (length, density) aren't enough to capture complex relevance.</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="margin-top: 3rem; text-align: center; border-top: 1px solid #334155; padding-top: 2rem;">
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Simple Chart for Nacer's Section
+        const ctx = document.getElementById('nacerChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['BM25 Baseline', 'Re-Ranking (RF)'],
+                datasets: [{
+                    label: 'LCS Score',
+                    data: [80.34, 83.13],
+                    backgroundColor: ['#64748b', '#3b82f6'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { min: 75 } }
+            }
+        });
+
+        // Initialize Mermaid
+        mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+    </script>
+</body>
+</html>
